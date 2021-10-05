@@ -8,7 +8,9 @@ namespace YtbToMp3
         private const double Tolerance = 0.001;
 
         private readonly int _numberOfSubProgresses;
+
         private readonly ISynchronizedOutput _output;
+        
         private double _lastValue;
 
         public (int Left, int Top) ConsolePosition { get; set; }

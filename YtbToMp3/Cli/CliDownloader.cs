@@ -43,9 +43,9 @@ namespace YtbToMp3
 
             using (CancellationTokenSource cancellationTokenSource = new())
             {
-                var youtubrUrls = await File.ReadAllLinesAsync(youtubeUrlsFile, cancellationTokenSource.Token);
+                var youtubeUrls = await ReadAllUrlsAsync(youtubeUrlsFile, cancellationTokenSource.Token);
 
-                List<Task> allTasks = GetAllDownloadTasks(youtubrUrls, outputDirectory, cancellationTokenSource);
+                List<Task> allTasks = GetAllDownloadTasks(youtubeUrls, outputDirectory, cancellationTokenSource.Token);
 
                 await Task.WhenAll(allTasks);
             }
@@ -53,12 +53,19 @@ namespace YtbToMp3
             End();
         }
 
-        private List<Task> GetAllDownloadTasks(string[] youtubrUrls, string outputDirectory, CancellationTokenSource cancellationTokenSource)
+        private async Task<string[]> ReadAllUrlsAsync(string youtubeUrlsFile, CancellationToken cancellationToken)
+        {
+            var youtubeUrls = await File.ReadAllLinesAsync(youtubeUrlsFile, cancellationToken);
+
+            return youtubeUrls.Where(url => !string.IsNullOrEmpty(url)).ToArray();
+        }
+
+        private List<Task> GetAllDownloadTasks(string[] youtubrUrls, string outputDirectory, CancellationToken cancellationToken)
         {
             var overallProgress = new OverallCliProgress(youtubrUrls.Length, _output);
 
             var allTasks = youtubrUrls
-                .Select(url => DownloadWithCliAsync(url, outputDirectory, cancellationTokenSource.Token, overallProgress))
+                .Select(url => DownloadWithCliTask(url, outputDirectory, cancellationToken, overallProgress))
                 .ToList();
 
             _output.WriteSync("\nTotal Progress: ");
@@ -68,7 +75,7 @@ namespace YtbToMp3
             return allTasks;
         }
 
-        private async Task DownloadWithCliAsync(string youtubeUrl, string outputDirectory, CancellationToken cancellationToken, IParentProgress overallProgress)
+        private Task DownloadWithCliTask(string youtubeUrl, string outputDirectory, CancellationToken cancellationToken, IParentProgress overallProgress)
         {
             _output.WriteLineSync(youtubeUrl);
 
@@ -79,12 +86,12 @@ namespace YtbToMp3
 
             cliProgress.PrintZeroPercent();
 
-            await _youtubeToMp3.DownloadAsync(youtubeUrl, outputDirectory, cliProgress, cancellationToken);
+            return _youtubeToMp3.DownloadTask(youtubeUrl, outputDirectory, cliProgress, cancellationToken);
         }
 
         private void Start()
         {
-            _output.CursorVisible = false;
+            //_output.CursorVisible = false;
 
             _stopwatch.Restart();
         }
