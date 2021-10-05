@@ -37,19 +37,6 @@ namespace YtbToMp3
             await Youtube.Videos.DownloadAsync(youtubeUrl, outputFilePath, progress, cancellationToken);
         }
 
-        public Task DownloadTask(string youtubeUrl, string saveToDirectory = null,
-            IProgress<double> progress = null, CancellationToken cancellationToken = default)
-        {
-            // TODO: duplicity !!
-            var videoTitle = GetVideoTitle(youtubeUrl);
-
-            string mp3FileName = CreateMp3FileName(videoTitle);
-
-            string outputFilePath = CombineFilePath(saveToDirectory, mp3FileName);
-
-            return Youtube.Videos.DownloadAsync(youtubeUrl, outputFilePath, progress, cancellationToken).AsTask();
-        }
-
         public async Task<string> GetVideoTitleAsync(string youtubeUrl)
         {
             Video video = await Youtube.Videos.GetAsync(youtubeUrl);

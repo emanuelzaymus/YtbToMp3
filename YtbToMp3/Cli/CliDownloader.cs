@@ -43,19 +43,19 @@ namespace YtbToMp3
 
             using (CancellationTokenSource cancellationTokenSource = new())
             {
-                var youtubeUrls = await ReadAllUrlsAsync(youtubeUrlsFile, cancellationTokenSource.Token);
+                var youtubeUrls = ReadAllUrls(youtubeUrlsFile);
 
                 List<Task> allTasks = GetAllDownloadTasks(youtubeUrls, outputDirectory, cancellationTokenSource.Token);
 
-                await Task.WhenAll(allTasks);
+                await Task.WhenAll(allTasks); // TODO: Super nasty bug....
             }
 
             End();
         }
 
-        private async Task<string[]> ReadAllUrlsAsync(string youtubeUrlsFile, CancellationToken cancellationToken)
+        private string[] ReadAllUrls(string youtubeUrlsFile)
         {
-            var youtubeUrls = await File.ReadAllLinesAsync(youtubeUrlsFile, cancellationToken);
+            var youtubeUrls = File.ReadAllLines(youtubeUrlsFile);
 
             return youtubeUrls.Where(url => !string.IsNullOrEmpty(url)).ToArray();
         }
@@ -86,12 +86,12 @@ namespace YtbToMp3
 
             cliProgress.PrintZeroPercent();
 
-            return _youtubeToMp3.DownloadTask(youtubeUrl, outputDirectory, cliProgress, cancellationToken);
+            return _youtubeToMp3.DownloadAsync(youtubeUrl, outputDirectory, cliProgress, cancellationToken);
         }
 
         private void Start()
         {
-            //_output.CursorVisible = false;
+            _output.CursorVisible = false;
 
             _stopwatch.Restart();
         }
