@@ -1,7 +1,6 @@
 ﻿using System;
-using YtbToMp3.Output;
 
-namespace YtbToMp3.Cli.Progress
+namespace YtbToMp3.Cli
 {
     internal class CliProgress : IProgress<double>
     {
@@ -9,18 +8,11 @@ namespace YtbToMp3.Cli.Progress
 
         private readonly (int Left, int Top) _cursorPosition;
 
-        private readonly ISynchronizedOutput _output;
-
-        private readonly IParentProgress _parentProgress;
-
         private double _lastValue;
 
-        public CliProgress((int Left, int Top) cursorPosition, ISynchronizedOutput output,
-            IParentProgress parentProgress)
+        public CliProgress((int Left, int Top) cursorPosition)
         {
             _cursorPosition = cursorPosition;
-            _output = output;
-            _parentProgress = parentProgress;
         }
 
         public void Report(double value)
@@ -30,9 +22,6 @@ namespace YtbToMp3.Cli.Progress
             {
                 Print(value);
 
-                double increase = value - _lastValue;
-                _parentProgress.ReportSubProgressIncrease(increase);
-
                 _lastValue = value;
             }
         }
@@ -41,10 +30,10 @@ namespace YtbToMp3.Cli.Progress
 
         private void Print(double value)
         {
-            _output.CursorPosition = _cursorPosition;
+            Console.SetCursorPosition(_cursorPosition.Left, _cursorPosition.Top);
 
             // Print in percent format
-            _output.WriteLineSync($" {value:P2}");
+            Console.WriteLine($" {value:P2}");
         }
     }
 }

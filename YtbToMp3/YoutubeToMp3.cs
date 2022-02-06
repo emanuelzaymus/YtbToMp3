@@ -38,16 +38,11 @@ namespace YtbToMp3
             await _youtube.Videos.DownloadAsync(youtubeUrl, outputFilePath, progress, cancellationToken);
         }
 
-        private async Task<string> GetVideoTitleAsync(string youtubeUrl)
+        public async Task<string> GetVideoTitleAsync(string youtubeUrl)
         {
             Video video = await _youtube.Videos.GetAsync(youtubeUrl);
 
             return video.Title;
-        }
-
-        public string GetVideoTitle(string youtubeUrl)
-        {
-            return GetVideoTitleAsync(youtubeUrl).GetAwaiter().GetResult();
         }
 
         private string CreateMp3FileName(string videoTitle)

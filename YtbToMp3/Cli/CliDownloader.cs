@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using YtbToMp3.Cli.Progress;
-using YtbToMp3.Output;
 
 namespace YtbToMp3.Cli
 {
@@ -14,14 +10,11 @@ namespace YtbToMp3.Cli
     {
         private readonly YoutubeToMp3 _youtubeToMp3;
 
-        private readonly ISynchronizedOutput _output;
-
         private readonly Stopwatch _stopwatch = new();
 
-        public CliDownloader(YoutubeToMp3 youtubeToMp3, ISynchronizedOutput synchronizedOutput)
+        public CliDownloader(YoutubeToMp3 youtubeToMp3)
         {
             _youtubeToMp3 = youtubeToMp3;
-            _output = synchronizedOutput;
         }
 
         public bool InvalidArguments(string[] args)
@@ -42,13 +35,11 @@ namespace YtbToMp3.Cli
 
             Start();
 
-            using (var cancellationTokenSource = new CancellationTokenSource())
+            var youtubeUrls = ReadAllUrls(youtubeUrlsFile);
+
+            foreach (var url in youtubeUrls)
             {
-                var youtubeUrls = ReadAllUrls(youtubeUrlsFile);
-
-                var allTasks = GetAllDownloadTasks(youtubeUrls, outputDirectory, cancellationTokenSource.Token);
-
-                await Task.WhenAll(allTasks);
+                await DownloadWithCliTask(url, outputDirectory);
             }
 
             End();
@@ -61,40 +52,23 @@ namespace YtbToMp3.Cli
             return youtubeUrls.Where(url => !string.IsNullOrEmpty(url)).ToArray();
         }
 
-        private List<Task> GetAllDownloadTasks(IReadOnlyCollection<string> youtubeUrls, string outputDirectory,
-            CancellationToken cancellationToken)
+        private async Task DownloadWithCliTask(string youtubeUrl, string outputDirectory)
         {
-            var overallProgress = new OverallCliProgress(youtubeUrls.Count, _output);
+            Console.WriteLine(youtubeUrl);
 
-            var allTasks = youtubeUrls
-                .Select(url => DownloadWithCliTask(url, outputDirectory, overallProgress, cancellationToken))
-                .ToList();
+            var videoTitle = await _youtubeToMp3.GetVideoTitleAsync(youtubeUrl);
+            Console.Write(videoTitle);
 
-            _output.WriteSync("\nTotal Progress: ");
-            overallProgress.CursorPosition = _output.CursorPosition;
-            overallProgress.PrintZeroPercent();
-
-            return allTasks;
-        }
-
-        private Task DownloadWithCliTask(string youtubeUrl, string outputDirectory, IParentProgress overallProgress,
-            CancellationToken cancellationToken)
-        {
-            _output.WriteLineSync(youtubeUrl);
-
-            var videoTitle = _youtubeToMp3.GetVideoTitle(youtubeUrl);
-            _output.WriteSync(videoTitle);
-
-            var cliProgress = new CliProgress(_output.CursorPosition, _output, overallProgress);
+            var cliProgress = new CliProgress(Console.GetCursorPosition());
 
             cliProgress.PrintZeroPercent();
 
-            return _youtubeToMp3.DownloadAsync(youtubeUrl, outputDirectory, cliProgress, cancellationToken);
+            await _youtubeToMp3.DownloadAsync(youtubeUrl, outputDirectory, cliProgress);
         }
 
         private void Start()
         {
-            _output.SetCursorVisible(false);
+            Console.CursorVisible = false;
 
             _stopwatch.Restart();
         }
@@ -104,8 +78,8 @@ namespace YtbToMp3.Cli
             _stopwatch.Stop();
 
             // Print elapsed seconds with 2 decimal places
-            _output.WriteLineSync($"\nFinished in {_stopwatch.ElapsedMilliseconds / 1000.0:F2} s");
-            _output.SetCursorVisible(true);
+            Console.WriteLine($"\nFinished in {_stopwatch.ElapsedMilliseconds / 1000.0:F2} s");
+            Console.CursorVisible = true;
         }
 
         private void PrintArgumentsHelp()
