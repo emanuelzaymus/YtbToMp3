@@ -22,7 +22,7 @@ namespace YtbToMp3.Cli
 
         public void PrintInvalidArgumentsHelp()
         {
-            Console.WriteLine("YtbToMp3.exe has wrong number of input arguments. \n");
+            Console.WriteLine("YtbToMp3.exe has wrong number of input arguments.");
             PrintArgumentsHelp();
         }
 
@@ -72,7 +72,7 @@ namespace YtbToMp3.Cli
             }
             catch (ArgumentException)
             {
-                Console.WriteLine($"Youtube url '{youtubeUrl}' is not valid or was not found.");
+                Console.WriteLine($"YouTube url '{youtubeUrl}' is not valid or was not found.");
             }
         }
 
@@ -80,13 +80,13 @@ namespace YtbToMp3.Cli
         {
             Console.WriteLine(
                 "YtbToMp3.exe Arguments: \n" +
-                "    1. Text file with Youtube urls, e.g.: \n" +
+                "    1. Text file with YouTube URL addresses, e.g.: \n" +
                 "        https://www.youtube.com/watch?v=2UxUJR31MEe \n" +
                 "        https://www.youtube.com/watch?v=osfDwb9U95w \n" +
                 "        https://www.youtube.com/watch?v=LqFtyWFG85q \n" +
                 "        ... \n\n" +
-                "    2. Output directory where to save the files. (Optional - default: \".\") \n\n" +
-                "E.g.: YtbToMp3.exe song_urls.txt ./my_songs/"
+                "    2. Output directory where to save downloaded MP3s. (Default: \".\") \n\n" +
+                "E.g.: YtbToMp3.exe song-urls.txt ./my_songs/"
             );
         }
     }
