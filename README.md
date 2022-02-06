@@ -2,6 +2,12 @@
 
 Script for downloading and converting YouTube videos to mp3 files.
 
+### Prerequisites
+
+Installed (added path in environment variables to) **ffmpeg.exe**
+You can download it from [ffmpeg.org](https://ffmpeg.org/download.html) 
+or from this repo [here](https://github.com/emanuelzaymus/YtbToMp3/blob/master/YtbToMp3/ffmpeg.exe).
+
 ### Arguments
 
 1. Text file with YouTube URL addresses, e.g.:
@@ -35,5 +41,6 @@ Finished in 46.72 s
 ```
 
 ### Used NuGet packages:
- * YoutubeExplode 6.0.7
- * YoutubeExplode.Converter 6.0.7
+
+* YoutubeExplode 6.0.7
+* YoutubeExplode.Converter 6.0.7
