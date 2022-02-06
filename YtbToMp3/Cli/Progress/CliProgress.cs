@@ -1,21 +1,24 @@
 ﻿using System;
 using YtbToMp3.Output;
 
-namespace YtbToMp3
+namespace YtbToMp3.Cli.Progress
 {
-    class CliProgress : IProgress<double>
+    internal class CliProgress : IProgress<double>
     {
-        private readonly (int Left, int Top) _consolePosition;
+        private const double Tolerance = 0.0001;
+
+        private readonly (int Left, int Top) _cursorPosition;
 
         private readonly ISynchronizedOutput _output;
 
         private readonly IParentProgress _parentProgress;
 
-        private double _lastValue = 0;
+        private double _lastValue;
 
-        public CliProgress((int Left, int Top) consolePosition, ISynchronizedOutput output, IParentProgress parentProgress)
+        public CliProgress((int Left, int Top) cursorPosition, ISynchronizedOutput output,
+            IParentProgress parentProgress)
         {
-            _consolePosition = consolePosition;
+            _cursorPosition = cursorPosition;
             _output = output;
             _parentProgress = parentProgress ?? throw new ArgumentNullException(nameof(parentProgress));
         }
@@ -23,12 +26,12 @@ namespace YtbToMp3
         public void Report(double value)
         {
             // Update only if the new value is at least 5% greater than last value.
-            if (value >= _lastValue + 0.05 || value == 1)
+            if (value >= _lastValue + 0.05 || Math.Abs(value - 1) < Tolerance)
             {
                 Print(value);
 
                 double increase = value - _lastValue;
-                _parentProgress.PreportSubProgressIncrease(increase);
+                _parentProgress.ReportSubProgressIncrease(increase);
 
                 _lastValue = value;
             }
@@ -38,11 +41,10 @@ namespace YtbToMp3
 
         private void Print(double value)
         {
-            _output.CursorPositon = _consolePosition;
+            _output.CursorPosition = _cursorPosition;
 
             // Print in percent format
-            _output.WriteLineSync(string.Format(" {0:P2}", value));
+            _output.WriteLineSync($" {value:P2}");
         }
-
     }
 }

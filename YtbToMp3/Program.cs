@@ -1,13 +1,14 @@
 ﻿using System.Threading.Tasks;
 using YtbToMp3.Cli;
+using YtbToMp3.Output;
 
 namespace YtbToMp3
 {
-    class Program
+    internal static class Program
     {
         public static async Task<int> Main(string[] args)
         {
-            CliDownloader cli = new(new YoutubeToMp3(), new ConsoleOutput());
+            var cli = new CliDownloader(new YoutubeToMp3(), new ConsoleOutput());
 
             if (cli.InvalidArguments(args))
             {
@@ -19,6 +20,5 @@ namespace YtbToMp3
 
             return 0;
         }
-
     }
 }

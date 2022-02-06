@@ -1,7 +1,7 @@
-﻿namespace YtbToMp3
+﻿namespace YtbToMp3.Cli.Progress
 {
-    interface IParentProgress
+    internal interface IParentProgress
     {
-        void PreportSubProgressIncrease(double subProgressIncrease);
+        void ReportSubProgressIncrease(double subProgressIncrease);
     }
 }

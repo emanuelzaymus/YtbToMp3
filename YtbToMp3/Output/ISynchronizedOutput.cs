@@ -1,10 +1,10 @@
 ﻿namespace YtbToMp3.Output
 {
-    interface ISynchronizedOutput
+    internal interface ISynchronizedOutput
     {
-        public bool CursorVisible { get; set; }
+        (int Left, int Top) CursorPosition { get; set; }
 
-        public (int Left, int Top) CursorPositon { get; set; }
+        void SetCursorVisible(bool visible);
 
         void WriteSync(string value);
 

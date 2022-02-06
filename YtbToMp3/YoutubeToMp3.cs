@@ -14,9 +14,10 @@ namespace YtbToMp3
     {
         private const string Mp3Extension = ".mp3";
 
-        private readonly YoutubeClient Youtube = new();
+        private readonly YoutubeClient _youtube = new();
 
-        public async Task DownloadAsync(IEnumerable<string> youtubeUrls, string saveToDirectory = null, CancellationToken cancellationToken = default)
+        public async Task DownloadAsync(IEnumerable<string> youtubeUrls, string saveToDirectory = ".",
+            CancellationToken cancellationToken = default)
         {
             var allTasks = youtubeUrls
                 .Select(url => DownloadAsync(url, saveToDirectory, cancellationToken: cancellationToken))
@@ -25,7 +26,7 @@ namespace YtbToMp3
             await Task.WhenAll(allTasks);
         }
 
-        public async Task DownloadAsync(string youtubeUrl, string saveToDirectory = null,
+        public async Task DownloadAsync(string youtubeUrl, string saveToDirectory = ".",
             IProgress<double> progress = null, CancellationToken cancellationToken = default)
         {
             var videoTitle = await GetVideoTitleAsync(youtubeUrl);
@@ -34,12 +35,12 @@ namespace YtbToMp3
 
             string outputFilePath = CombineFilePath(saveToDirectory, mp3FileName);
 
-            await Youtube.Videos.DownloadAsync(youtubeUrl, outputFilePath, progress, cancellationToken);
+            await _youtube.Videos.DownloadAsync(youtubeUrl, outputFilePath, progress, cancellationToken);
         }
 
-        public async Task<string> GetVideoTitleAsync(string youtubeUrl)
+        private async Task<string> GetVideoTitleAsync(string youtubeUrl)
         {
-            Video video = await Youtube.Videos.GetAsync(youtubeUrl);
+            Video video = await _youtube.Videos.GetAsync(youtubeUrl);
 
             return video.Title;
         }
@@ -58,14 +59,9 @@ namespace YtbToMp3
 
         private string CombineFilePath(string saveToDirectory, string mp3FileName)
         {
-            if (saveToDirectory is not null)
-            {
-                Directory.CreateDirectory(saveToDirectory);
+            Directory.CreateDirectory(saveToDirectory);
 
-                return Path.Combine(saveToDirectory, mp3FileName);
-            }
-
-            return mp3FileName;
+            return Path.Combine(saveToDirectory, mp3FileName);
         }
 
         private string ReplaceAllInvalidFileNameChars(string fileName, char replaceWithChar)
@@ -77,6 +73,5 @@ namespace YtbToMp3
 
             return fileName;
         }
-
     }
 }

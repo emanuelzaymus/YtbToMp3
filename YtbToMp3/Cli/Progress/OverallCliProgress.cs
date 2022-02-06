@@ -1,26 +1,27 @@
 ﻿using System;
 using YtbToMp3.Output;
 
-namespace YtbToMp3
+namespace YtbToMp3.Cli.Progress
 {
-    class OverallCliProgress : IParentProgress
+    internal class OverallCliProgress : IParentProgress
     {
-        private const double Tolerance = 0.001;
+        private const double Tolerance = 0.0001;
 
         private readonly int _numberOfSubProgresses;
 
         private readonly ISynchronizedOutput _output;
-        
+
         private double _lastValue;
 
-        public (int Left, int Top) ConsolePosition { get; set; }
+        public (int Left, int Top) CursorPosition { get; set; }
 
         public OverallCliProgress(int numberOfSubProgresses, ISynchronizedOutput output)
         {
             _numberOfSubProgresses = numberOfSubProgresses;
             _output = output;
         }
-        public void PreportSubProgressIncrease(double subProgressIncrease)
+
+        public void ReportSubProgressIncrease(double subProgressIncrease)
         {
             double partialIncrease = subProgressIncrease / _numberOfSubProgresses;
 
@@ -33,7 +34,7 @@ namespace YtbToMp3
 
         private void Print(double value)
         {
-            _output.CursorPositon = ConsolePosition;
+            _output.CursorPosition = CursorPosition;
 
             for (int i = 0; i < 20; i++)
             {
@@ -41,7 +42,7 @@ namespace YtbToMp3
             }
 
             // Print in percent format
-            _output.WriteLineSync(string.Format(" {0:P2}", value));
+            _output.WriteLineSync($" {value:P2}");
         }
 
         private bool LessOrEqualWithTolerance(double first, double second)
@@ -51,14 +52,7 @@ namespace YtbToMp3
                 return true;
             }
 
-            // Equal
-            if (Math.Abs(first - second) <= Tolerance)
-            {
-                return true;
-            }
-
-            return false;
+            return Math.Abs(first - second) <= Tolerance;
         }
-
     }
 }

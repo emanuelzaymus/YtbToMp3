@@ -1,39 +1,34 @@
 ﻿using System;
-using YtbToMp3.Output;
 
-namespace YtbToMp3.Cli
+namespace YtbToMp3.Output
 {
     internal class ConsoleOutput : ISynchronizedOutput
     {
-        private static readonly object _lock = new();
+        private static readonly object Lock = new();
 
-        public bool CursorVisible
-        {
-            get => Console.CursorVisible;
-            set
-            {
-                lock (_lock)
-                {
-                    Console.CursorVisible = value;
-                }
-            }
-        }
-
-        public (int Left, int Top) CursorPositon
+        public (int Left, int Top) CursorPosition
         {
             get => Console.GetCursorPosition();
             set
             {
-                lock (_lock)
+                lock (Lock)
                 {
                     Console.SetCursorPosition(value.Left, value.Top);
                 }
             }
         }
 
+        public void SetCursorVisible(bool visible)
+        {
+            lock (Lock)
+            {
+                Console.CursorVisible = visible;
+            }
+        }
+
         public void WriteSync(string value)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 Console.Write(value);
             }
@@ -46,11 +41,10 @@ namespace YtbToMp3.Cli
 
         public void WriteLineSync(string value)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 Console.WriteLine(value);
             }
         }
-
     }
 }
