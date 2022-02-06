@@ -27,7 +27,7 @@ namespace YtbToMp3
         }
 
         public async Task DownloadAsync(string youtubeUrl, string saveToDirectory = ".",
-            IProgress<double> progress = null, CancellationToken cancellationToken = default)
+            IProgress<double>? progress = null, CancellationToken cancellationToken = default)
         {
             var videoTitle = await GetVideoTitleAsync(youtubeUrl);
 

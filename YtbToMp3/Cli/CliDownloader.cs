@@ -20,7 +20,7 @@ namespace YtbToMp3.Cli
 
         public CliDownloader(YoutubeToMp3 youtubeToMp3, ISynchronizedOutput synchronizedOutput)
         {
-            _youtubeToMp3 = youtubeToMp3 ?? throw new ArgumentNullException(nameof(youtubeToMp3));
+            _youtubeToMp3 = youtubeToMp3;
             _output = synchronizedOutput;
         }
 
@@ -48,7 +48,7 @@ namespace YtbToMp3.Cli
 
                 var allTasks = GetAllDownloadTasks(youtubeUrls, outputDirectory, cancellationTokenSource.Token);
 
-                await Task.WhenAll(allTasks); // TODO: Super nasty B U G ....
+                await Task.WhenAll(allTasks);
             }
 
             End();

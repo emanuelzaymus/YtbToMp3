@@ -20,7 +20,7 @@ namespace YtbToMp3.Cli.Progress
         {
             _cursorPosition = cursorPosition;
             _output = output;
-            _parentProgress = parentProgress ?? throw new ArgumentNullException(nameof(parentProgress));
+            _parentProgress = parentProgress;
         }
 
         public void Report(double value)
