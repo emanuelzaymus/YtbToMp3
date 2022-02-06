@@ -10,8 +10,6 @@ namespace YtbToMp3.Cli
     {
         private readonly YoutubeToMp3 _youtubeToMp3;
 
-        private readonly Stopwatch _stopwatch = new();
-
         public CliDownloader(YoutubeToMp3 youtubeToMp3)
         {
             _youtubeToMp3 = youtubeToMp3;
@@ -33,53 +31,49 @@ namespace YtbToMp3.Cli
             var youtubeUrlsFile = args[0];
             var outputDirectory = args.Length > 1 ? args[1] : ".";
 
-            Start();
+            Console.CursorVisible = false;
+            var stopwatch = Stopwatch.StartNew();
 
             var youtubeUrls = ReadAllUrls(youtubeUrlsFile);
 
             foreach (var url in youtubeUrls)
             {
-                await DownloadWithCliTask(url, outputDirectory);
+                await DownloadWithCliProgressAsync(url, outputDirectory);
             }
 
-            End();
+            // Print elapsed seconds with 2 decimal places
+            Console.WriteLine($"\nFinished in {stopwatch.ElapsedMilliseconds / 1000.0:F2} s");
+            Console.CursorVisible = true;
         }
 
         private string[] ReadAllUrls(string youtubeUrlsFile)
         {
             var youtubeUrls = File.ReadAllLines(youtubeUrlsFile);
 
-            return youtubeUrls.Where(url => !string.IsNullOrEmpty(url)).ToArray();
+            return youtubeUrls
+                .Where(url => !string.IsNullOrEmpty(url))
+                .ToArray();
         }
 
-        private async Task DownloadWithCliTask(string youtubeUrl, string outputDirectory)
+        private async Task DownloadWithCliProgressAsync(string youtubeUrl, string outputDirectory)
         {
             Console.WriteLine(youtubeUrl);
 
-            var videoTitle = await _youtubeToMp3.GetVideoTitleAsync(youtubeUrl);
-            Console.Write(videoTitle);
+            try
+            {
+                var videoTitle = await _youtubeToMp3.GetVideoTitleAsync(youtubeUrl);
+                Console.Write(videoTitle);
 
-            var cliProgress = new CliProgress(Console.GetCursorPosition());
+                var cliProgress = new CliProgress();
 
-            cliProgress.PrintZeroPercent();
+                cliProgress.PrintZeroPercent();
 
-            await _youtubeToMp3.DownloadAsync(youtubeUrl, outputDirectory, cliProgress);
-        }
-
-        private void Start()
-        {
-            Console.CursorVisible = false;
-
-            _stopwatch.Restart();
-        }
-
-        private void End()
-        {
-            _stopwatch.Stop();
-
-            // Print elapsed seconds with 2 decimal places
-            Console.WriteLine($"\nFinished in {_stopwatch.ElapsedMilliseconds / 1000.0:F2} s");
-            Console.CursorVisible = true;
+                await _youtubeToMp3.DownloadAsync(youtubeUrl, outputDirectory, cliProgress);
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine($"Youtube url '{youtubeUrl}' is not valid or was not found.");
+            }
         }
 
         private void PrintArgumentsHelp()

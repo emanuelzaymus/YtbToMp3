@@ -35,12 +35,12 @@ namespace YtbToMp3
 
             string outputFilePath = CombineFilePath(saveToDirectory, mp3FileName);
 
-            await _youtube.Videos.DownloadAsync(youtubeUrl, outputFilePath, progress, cancellationToken);
+            await _youtube.Videos.DownloadAsync(youtubeUrl.Trim(), outputFilePath, progress, cancellationToken);
         }
 
         public async Task<string> GetVideoTitleAsync(string youtubeUrl)
         {
-            Video video = await _youtube.Videos.GetAsync(youtubeUrl);
+            Video video = await _youtube.Videos.GetAsync(youtubeUrl.Trim());
 
             return video.Title;
         }

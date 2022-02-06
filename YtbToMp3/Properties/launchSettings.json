@@ -2,7 +2,7 @@
   "profiles": {
     "YtbToMp3": {
       "commandName": "Project",
-      "commandLineArgs": "song_urls.txt ./my_songs/"
+      "commandLineArgs": "song-urls.txt ./my_songs/"
     }
   }
 }

@@ -6,14 +6,9 @@ namespace YtbToMp3.Cli
     {
         private const double Tolerance = 0.0001;
 
-        private readonly (int Left, int Top) _cursorPosition;
+        private readonly (int Left, int Top) _cursorPosition = Console.GetCursorPosition();
 
         private double _lastValue;
-
-        public CliProgress((int Left, int Top) cursorPosition)
-        {
-            _cursorPosition = cursorPosition;
-        }
 
         public void Report(double value)
         {
